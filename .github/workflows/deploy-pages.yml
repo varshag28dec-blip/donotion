@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -38,6 +38,23 @@ jobs:
         run: cd frontend && npm run build
         env:
           VITE_BASE_PATH: /donotion/
+
+      - name: Publish frontend files at repository root
+        run: |
+          rm -rf assets
+          cp -R frontend/dist/assets ./assets
+          cp frontend/dist/index.html ./index.html
+          cp frontend/dist/index.html ./404.html
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html 404.html .nojekyll assets
+          if git diff --cached --quiet; then
+            echo "Built site files are already current."
+          else
+            git commit -m "Deploy website to GitHub Pages"
+            git push
+          fi
 
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
