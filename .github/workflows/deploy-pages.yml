@@ -24,6 +24,16 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Set Pages source to GitHub Actions
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.repos.updatePages({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              build_type: 'workflow',
+            })
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
